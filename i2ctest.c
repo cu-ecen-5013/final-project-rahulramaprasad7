@@ -1,3 +1,4 @@
+/* REFERENCE https://raspberry-projects.com/pi/programming-in-c/i2c/using-the-i2c-interface */
 #include <unistd.h>				//Needed for I2C port
 #include <fcntl.h>				//Needed for I2C port
 #include <sys/ioctl.h>			//Needed for I2C port
