@@ -33,19 +33,19 @@ void setCursorMode(uint8_t id1, uint8_t id0, uint8_t am)
 //Delay for a perticular number of milliseconds
 //Taken from the example LCD driver found at
 //http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSP-EXP432P401R/latest/index_FDS.html
-void delay(uint16_t msec)
-{
-    // //loop counter
-    // uint32_t i = 0;
-    // //Calculate time taken from clock speed and machine cycles
-    // uint32_t time = (msec / 1000) * (SYSTEM_CLOCK_SPEED / 15);
+// void delay(uint16_t msec)
+// {
+//     //loop counter
+//     uint32_t i = 0;
+//     //Calculate time taken from clock speed and machine cycles
+//     uint32_t time = (msec / 1000) * (1000000000 / 15);
 
-    // //Run a blank loop
-    // for(i = 0; i < time; i++)
-    // {
-    //     ;
-    // }
-}
+//     //Run a blank loop
+//     for(i = 0; i < time; i++)
+//     {
+//         ;
+//     }
+// }
 
 //Send the command register address to the LCD
 void lcdSendCommand(uint8_t command)
@@ -69,6 +69,16 @@ void spi16bytes(uint16_t in)
     // EUSCI_B0->TXBUF = (uint8_t)(in & 0xFF);
     // while (!(EUSCI_B0->IFG & EUSCI_B_IFG_TXIFG));
 
+    // if (write(fd, &in, sizeof(in)) != sizeof(in))
+	// 	perror("Write Error");
+
+    uint8_t t1 = (uint8_t)(in >> 8);
+    uint8_t t2 = (uint8_t)(in & 0xFF);
+
+    write(fd, &t1, 1);
+
+    write(fd, &t2, 1);
+
 }
 
 //Send 8 bytes of SPI data
@@ -77,6 +87,10 @@ void spi8bytes(uint8_t in)
     // //load the 8 bytes
     // EUSCI_B0->TXBUF = in;
     // while (!(EUSCI_B0->IFG & EUSCI_B_IFG_TXIFG));
+
+    // if (write(fd, &in, 1) != sizeof(in))
+	// 	perror("Write Error");
+    write(fd, &in, 1);
 }
 
 //Select/Deselect the LCD
@@ -92,11 +106,12 @@ void selectCS(int state)
 //Select/Deselect the LCD command line
 void selectDC(int state)
 {
-    // //Set or clear the SDC line
-    // if(state)
-    //     P4->OUT |= DC;
-    // else
-    //     P4->OUT &= ~DC;
+    // Set or clear the SDC line
+    // aka BCM_GPIO pin 17
+    if(state)
+        digitalWrite (0, 1) ;       // On
+    else
+        digitalWrite (0, 0) ;       // Off
 }
 
 //Set the position of the cursor in X-Y axis
@@ -253,6 +268,43 @@ void writeLetter(uint16_t posX, uint16_t posY, uint16_t color, char inChar)
 void lcdInit(void)
 {
     // while (!(EUSCI_B0->IFG & EUSCI_B_IFG_TXIFG));
+
+    static uint8_t mode;
+    mode |= SPI_CPHA;
+    mode |= SPI_CPOL;
+
+    static uint8_t bits = 8;
+    static uint32_t speed = 800000;
+
+    printf("FD: %d mode %d\n", fd, mode);
+
+    int ret;
+    ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+	if (ret == -1)
+		perror("can't set spi mode");
+
+	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
+	if (ret == -1)
+		perror("can't get spi mode");
+
+        ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
+	if (ret == -1)
+		perror("can't set bits per word");
+
+	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+	if (ret == -1)
+		perror("can't get bits per word");
+
+	/*
+	 * max speed hz
+	 */
+	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+	if (ret == -1)
+		perror("can't set max speed hz");
+
+	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+	if (ret == -1)
+		perror("can't get max speed hz");
 
     //loop counter
     uint32_t ulCount;

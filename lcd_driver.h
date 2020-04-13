@@ -27,6 +27,14 @@
 //the font
 #include "Lucida_Console_8pts.h"
 
+#include <wiringPi.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/types.h>
+#include <linux/spi/spidev.h>
+#include <unistd.h>
+#include <stdlib.h>
+
 /* The pin numbers for the GPIOs USED TO COMMNUICATE WITH THE LCD */
 //SPI - SCLK
 #define CLK BIT5
@@ -47,6 +55,8 @@
 #define BLUE 0x001F
 #define BLACK 0x0000
 #define WHITE (RED | GREEN | BLUE)
+
+extern int fd;
 
 
 /*
@@ -135,7 +145,7 @@ void selectDC(int state);
  * @param amount of delay in ms
  * @return void
  */
-void delay(uint16_t msec);
+// void delay(uint16_t msec);
 
 /*
  * @brief Sets the cursor mode
