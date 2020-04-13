@@ -7,8 +7,6 @@ C_FILE := \
 	lcdDriver.c
 
 lcd: ${C_FILE}
-	pwd
-	# gcc ./spitest.c ./Lucida_Console_8pts.c ./Lucida_Console_8pts_narrow.c ./lcdDriver.c -lwiringPi -o spitest
 	gcc ${C_FILE} -lwiringPi -o spitest
 
 # lcdExe: lcd
