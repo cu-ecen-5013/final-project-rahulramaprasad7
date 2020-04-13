@@ -8,6 +8,8 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include <wiringPi.h>
+#include "Lucida_Console_8pts.h"
+#include "lcd_driver.h"
 
 #define ARRAY_SIZE(array) sizeof(array)/sizeof(array[0])
 
@@ -25,6 +27,36 @@ int main(void)
     }
 
     pinMode (0, OUTPUT) ;         // aka BCM_GPIO pin 17
+
+    lcdInit();
+    // uint8_t t = 0x12;
+    // write(fd, &t, 1);
+
+    //(320x240 resolution)
+    //    selectCS(0);
+    // drawLineX(20, 300, 220, GREEN);
+    // drawLineY(0, 220, 20, GREEN);
+
+    // //LCD UI
+    // //X-axis labels
+    // writeString(20,480 , WHITE, "0");
+    // writeString(84, 480, WHITE, "Fs/4");
+    // writeString(148, 480, WHITE, "Fs/2");
+    // writeString(212, 480, WHITE, "3Fs/4");
+    // writeString(276, 480, WHITE, "Fs");
+
+    // //Y-axis labels
+    // writeString(0, 460, WHITE, "20");
+    // writeString(0, 440, WHITE, "40");
+    // writeString(0, 420, WHITE, "60");
+    // writeString(0, 400, WHITE, "80");
+    // writeString(0, 380, WHITE, "100");
+    // writeString(0, 360, WHITE, "120");
+    // writeString(0, 340, WHITE, "140");
+    // writeString(0, 320, WHITE, "160");
+    // writeString(0, 300, WHITE, "180");
+    // writeString(0, 280, WHITE, "200");
+    // writeString(0, 260, WHITE, "220");
 
     close(fd);
 }
