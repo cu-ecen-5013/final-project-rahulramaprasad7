@@ -1,16 +1,16 @@
-all: lcd
+C_FILES := \
+			epd1in541.c \
+			epdif1.c \
+			main.c \
+			Lucida_Console_8pts_narrow.c \
+			Lucida_Console_8pts.c
 
-C_FILE := \
-	spitest.c \
-	Lucida_Console_8pts_narrow.c \
-	Lucida_Console_8pts.c \
-	lcdDriver.c
+EXE := epaper
 
-lcd: ${C_FILE}
-	gcc ${C_FILE} -lwiringPi -o spitest
+all: out
 
-# lcdExe: lcd
-
+out: ${C_FILES}
+	gcc ${C_FILES} -lwiringPi -o ${EXE} 
 
 clean:
-	rm spitest
+	rm ${EXE}

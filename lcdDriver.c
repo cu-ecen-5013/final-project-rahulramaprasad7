@@ -72,12 +72,13 @@ void spi16bytes(uint16_t in)
     // if (write(fd, &in, sizeof(in)) != sizeof(in))
 	// 	perror("Write Error");
 
-    uint8_t t1 = (uint8_t)(in >> 8);
-    uint8_t t2 = (uint8_t)(in & 0xFF);
+    // uint8_t t1 = (uint8_t)(in >> 8);
+    // uint8_t t2 = (uint8_t)(in & 0xFF);
 
-    write(fd, &t1, 1);
+    // write(fd, &t1, 1);
 
-    write(fd, &t2, 1);
+    // write(fd, &t2, 1);
+    write(fd, &in, 2);
 
 }
 
@@ -101,6 +102,12 @@ void selectCS(int state)
     //     P5->OUT |= LCD_CS;
     // else
     //     P5->OUT &= ~LCD_CS;
+
+    // aka BCM_GPIO pin 27
+    if(state)
+        digitalWrite (2, 1) ;       // On
+    else
+        digitalWrite (2, 0) ;       // Off
 }
 
 //Select/Deselect the LCD command line
@@ -269,12 +276,12 @@ void lcdInit(void)
 {
     // while (!(EUSCI_B0->IFG & EUSCI_B_IFG_TXIFG));
 
-    static uint8_t mode;
-    mode |= SPI_CPHA;
+    static uint8_t mode = 0;
+    // mode |= SPI_CPHA;
     mode |= SPI_CPOL;
 
     static uint8_t bits = 8;
-    static uint32_t speed = 800000;
+    static uint32_t speed = 500000;
 
     printf("FD: %d mode %d\n", fd, mode);
 
