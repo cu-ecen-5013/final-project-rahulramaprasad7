@@ -17,7 +17,7 @@
 
 #include "MadgwickAHRS.h"
 #include <math.h>
-
+#include <stdio.h>
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
@@ -33,7 +33,7 @@ volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sens
 //---------------------------------------------------------------------------------------------------
 // Function declarations
 
-float invSqrt(float x);
+//float invSqrt(float x);
 
 //====================================================================================================
 // Functions
@@ -135,6 +135,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 	q1 *= recipNorm;
 	q2 *= recipNorm;
 	q3 *= recipNorm;
+	printf("The quaternion output is as follows %f, %f, %f, %f",q0,q1,q2,q3);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -208,6 +209,7 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 	q1 *= recipNorm;
 	q2 *= recipNorm;
 	q3 *= recipNorm;
+	printf("The quaternion output is as follows %f, %f, %f, %f",q0,q1,q2,q3);
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -222,12 +224,6 @@ float invSqrt(float x) {
 	y = *(float*)&i;
 	y = y * (1.5f - (halfx * y * y));
 	return y;
-}
-
-int main()
-{
-	MadgwickAHRSupdate(1,1,1,1,1,1,1,1,1);
-	return 0;
 }
 //====================================================================================================
 // END OF CODE

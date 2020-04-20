@@ -3,8 +3,8 @@
 #include <fcntl.h>				//Needed for I2C port
 #include <sys/ioctl.h>			//Needed for I2C port
 #include <linux/i2c-dev.h>		//Needed for I2C port
+#include "MadgwickAHRS.h"
 int main()
-
 {
 	int file_i2c;
 	int length;
@@ -16,7 +16,7 @@ int main()
 	{
 		//ERROR HANDLING: you can check errno to see what went wrong
 		printf("Failed to open the i2c bus");
-		return;
+		return -1;
 	}
 	
 	int addr = 0x68;          //<<<<<The I2C address of the slave
@@ -24,7 +24,7 @@ int main()
 	{
 		printf("Failed to acquire bus access and/or talk to slave.\n");
 		//ERROR HANDLING; you can check errno to see what went wrong
-		return;
+		return -1 ;
 	}
 	
 	
@@ -38,9 +38,10 @@ int main()
 	else
 	{
 		//printf("Data read: %s\n", buffer);
-		for (int i = 59; i < 73; i++)
-			printf("%x: %x\n ", i,buffer[i]);
+		//for (int i = 59; i < 73; i++)
+		//	printf("%x: %x\n ", i,buffer[i]);
 	}
+	MadgwickAHRSupdate((float)buffer[59],(float)buffer[61],(float)buffer[63],(float)buffer[67],(float)buffer[69],(float)buffer[71],0,0,0);	
 
 	
 	//----- WRITE BYTES -----
