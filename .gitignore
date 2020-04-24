@@ -20,3 +20,9 @@ module/gpioTest.mod.c
 module/modules.order
 module/aesdchar.ko
 epaper
+module/.eink-module.o.d
+module/.einkChar.ko.cmd
+module/.einkChar.o.cmd
+module/.einkChar.mod.o.cmd
+module/einkChar.mod.c
+module/einkChar.ko
