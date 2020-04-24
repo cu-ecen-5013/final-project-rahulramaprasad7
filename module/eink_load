@@ -1,6 +1,6 @@
 #!/bin/sh
-module=aesdchar
-device=aesdchar
+module=einkChar
+device=einkChar
 mode="664"
 cd `dirname $0`
 set -e
