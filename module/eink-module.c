@@ -92,7 +92,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
   char *in = kmalloc(tempIn->length + 1, GFP_KERNEL);
   copy_from_user(in, tempIn->stringIn, tempIn->length);
-  in[length] = '\0';
+  in[tempIn->length] = '\0';
   // = (struct pixelDataIn *)arg;
   // struct pixelDataIn *tempIn = (struct pixelDataIn *)arg;
   // struct pixelDataIn *t1 = arg;
@@ -119,7 +119,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       //   if(bufIn[i] == '\0')
       //     break;
       // }
-      PDEBUG("String from IOCTL: %s @ X: %d Y: %d\n", in, tempX, tempY);
+      PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->length);
       writeString(tempX, tempY, DISP_BLACK, in);
       updateDisplay();
       break;
