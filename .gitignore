@@ -26,3 +26,4 @@ module/.einkChar.o.cmd
 module/.einkChar.mod.o.cmd
 module/einkChar.mod.c
 module/einkChar.ko
+module/.tmp_versions/einkChar.mod
