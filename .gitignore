@@ -19,3 +19,4 @@ module/modules.order
 module/gpioTest.mod.c
 module/modules.order
 module/aesdchar.ko
+epaper
