@@ -5,12 +5,15 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
+#include <linux/slab.h>
 #include <linux/cdev.h>
 #include <linux/gpio.h>      // Required for the GPIO functions
 #include <linux/interrupt.h> // Required for the IRQ code
 #include <linux/spi/spi.h>
 #include <linux/printk.h>
 #include <linux/device.h>
+#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 // #define printf PDEBUG
 
 #define AESD_DEBUG 1 // Remove comment on this line to enable debug
@@ -34,6 +37,7 @@
 #include "epdif.h"
 #include "Lucida_Console_8pts.h"
 #include "drawFunctions.h"
+#include "eink_ioctl.h"
 
 struct aesd_dev {
   struct mutex lock; /* mutual exclusion semaphore */
@@ -58,6 +62,8 @@ MODULE_AUTHOR("Prayag Desai");
 MODULE_DESCRIPTION("A module to work with the e-ink display");
 MODULE_VERSION("0.1");
 
+#define BUF_LEN 80
+
 struct aesd_dev aesd_device;
 
 ssize_t eink_write(struct file *filp, const char __user *buf, size_t count,
@@ -66,13 +72,74 @@ ssize_t eink_write(struct file *filp, const char __user *buf, size_t count,
   return count;
 }
 
+long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+  int i = 0, temp = 0;
+  int tempX, tempX1, tempY, tempY1;
+  PDEBUG("EINK: IOCTL\n");
+  /*
+	 * extract the type and number bitfields, and don't decode
+	 * wrong cmds: return ENOTTY (inappropriate ioctl) before access_ok()
+	 */
+	if (_IOC_TYPE(cmd) != EINK_IOC_MAGIC) return -ENOTTY;
+	if (_IOC_NR(cmd) > EINKCHAR_IOC_MAXNR) return -ENOTTY;
+
+  char bufIn[BUF_LEN];
+
+  struct pixelDataIn *tempIn = kmalloc(sizeof(struct pixelDataIn), GFP_KERNEL);
+
+  copy_from_user((void*)tempIn, (struct pixelDataIn __user *)arg, sizeof(struct pixelDataIn));
+
+  char *in = kmalloc(tempIn->length + 1, GFP_KERNEL);
+  copy_from_user(in, tempIn->stringIn, tempIn->length);
+  in[length] = '\0';
+  // = (struct pixelDataIn *)arg;
+  // struct pixelDataIn *tempIn = (struct pixelDataIn *)arg;
+  // struct pixelDataIn *t1 = arg;
+  // get_user(tempIn, t1);
+
+  char* charIn = tempIn->stringIn;
+  // get_user(tempX, tempIn->x);
+  // get_user(tempY, tempIn->y);
+  // get_user(tempX1, tempIn->x1);
+  // get_user(tempY1, tempIn->y1);
+  tempX = tempIn->x;
+  tempY = tempIn->y;
+  tempX1 = tempIn->x1;
+  tempY1 = tempIn->y1;
+
+
+  switch (cmd)
+  {
+    case EINKCHAR_IOCWRCHAR:
+      // for(i = 0, temp = 0; i < BUF_LEN; i++, temp++)
+      // {
+      //   get_user(bufIn[i], tempIn->stringIn + i);
+      //   // bufIn[i] = tempIn->stringIn + i;
+      //   if(bufIn[i] == '\0')
+      //     break;
+      // }
+      PDEBUG("String from IOCTL: %s @ X: %d Y: %d\n", in, tempX, tempY);
+      writeString(tempX, tempY, DISP_BLACK, in);
+      updateDisplay();
+      break;
+
+    default:
+      PDEBUG("Invalid IOCTL command: %d\n", cmd);
+      break;
+  }
+
+  // kfree(tempIn);
+  return 0;
+}
+
 struct file_operations aesd_fops = {
     .owner = THIS_MODULE,
     // .read =     aesd_read,
     .write = eink_write,
     // .open =     aesd_open,
     // .llseek  = 	aesd_llseek,
-    // .unlocked_ioctl = aesd_ioctl,
+    .unlocked_ioctl = eink_ioctl,
     // .release =  aesd_release,
 };
 
@@ -92,7 +159,7 @@ static int aesd_setup_cdev(struct aesd_dev *dev) {
 int __init eink_init(void) {
   dev_t dev = 0;
   int result;
-  result = alloc_chrdev_region(&dev, aesd_minor, 1, "aesdchar");
+  result = alloc_chrdev_region(&dev, aesd_minor, 1, "einkChar");
   aesd_major = MAJOR(dev);
   if (result < 0) {
     printk(KERN_WARNING "Can't get major %d\n", aesd_major);
@@ -194,11 +261,6 @@ int __init eink_init(void) {
     for (j = 0; j < 200 / 8; j++) {
       imageBuffer[i][j] = 0xFF;
     }
-  }
-
-  for (i = 0; i < 200; i++) {
-    drawPixel(i, i, DISP_BLACK);
-    // printf("Draw for: %d\n", i);
   }
 
   drawLineX(100, 50, 10, DISP_BLACK);
