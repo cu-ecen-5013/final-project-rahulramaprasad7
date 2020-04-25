@@ -7,10 +7,13 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <math.h>
 #include "./module/eink_ioctl.h"
 
 #define DISP_WHITE 0
 #define DISP_BLACK 1
+
+#define DtoR(X) ((X) * M_PI/(double)180.00)
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -35,16 +38,6 @@ int main(void)
 {
     int fd = open("/dev/einkChar", O_WRONLY);
     char test[] = "Write w/ IOCTL\0";
-    // uint8_t ar[20 * 20];
-
-    // for(int i = 0; i < 20; i ++)
-    // {
-    //     for(int j = 0; j < 20; j++)
-    //     {
-    //         ar[i][j] = 1;
-    //     }
-    // }
-
 
     struct pixelDataIn data;
     data.x = 50;
@@ -54,8 +47,6 @@ int main(void)
     data.stringIn = test;
     data.stringLength = strlen(test);
     data.partLUT = false;
-    // data.sectionData = ar;
-
 
     // ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 
@@ -66,35 +57,49 @@ int main(void)
 
     uint8_t *sec = malloc(20 * 20);
 
-    for(int i = 0; i < 20; i ++)
-    {
-        for(int j = 0; j < 20; j++)
-        {
-            writeSection(i, j, 20, 20, DISP_WHITE, sec);
-        }
-    }
-
-    for(int i = 0; i < 20; i ++)
-    {
-        writeSection(i, i, 20, 20, DISP_BLACK, sec);
-    }
-
-    data.x = 0;
-    data.y = 0;
-    data.x1 = 20;
-    data.y1 = 20;
-    data.sectionData = sec;
-    ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
-
     // for(int i = 0; i < 20; i ++)
     // {
     //     for(int j = 0; j < 20; j++)
     //     {
-    //         int index = j + 20 * i;
-    //         printf("%d ", sec[index]);
+    //         writeSection(i, j, 20, 20, DISP_WHITE, sec);
     //     }
-    //     printf("\n");
     // }
+
+    // for(int i = 0; i < 20; i ++)
+    // {
+    //     writeSection(i, i, 20, 20, DISP_BLACK, sec);
+    // }
+
+    // data.x = 0;
+    // data.y = 0;
+    // data.x1 = 20;
+    // data.y1 = 20;
+    // data.sectionData = sec;
+    // ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
+
+    int x = round(40 * cos(DtoR(0)));
+    int y = round(40 * sin(DtoR(0)));
+    data.x = 20;
+    data.y = 20;
+    data.x1 = x + 20;
+    data.y1 = y + 20;
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
+
+    x = round(40 * cos(DtoR(45)));
+    y = round(40 * sin(DtoR(45)));
+    data.x = 40;
+    data.y = 40;
+    data.x1 = x + 40;
+    data.y1 = y + 40;
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
+
+    x = round(40 * cos(DtoR(90)));
+    y = round(40 * sin(DtoR(90)));
+    data.x1 = 80;
+    data.y1 = 80;
+    data.x = x + 80;
+    data.y = y + 80;
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 
     free(sec);
 
