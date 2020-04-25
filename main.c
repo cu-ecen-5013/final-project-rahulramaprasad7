@@ -16,12 +16,14 @@ int main(void)
     struct pixelDataIn data;
     data.x = 50;
     data.y = 100;
+    data.x1 = 10;
+    data.y1 = 60;
     data.stringIn = test;
     data.length = strlen(test);
 
     printf("Length: %ld\n", strlen(test));
 
-    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 
     return 0;
 }
