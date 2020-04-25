@@ -88,22 +88,12 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   char bufIn[BUF_LEN];
 
   struct pixelDataIn *tempIn = kmalloc(sizeof(struct pixelDataIn), GFP_KERNEL);
-
   copy_from_user((void*)tempIn, (struct pixelDataIn __user *)arg, sizeof(struct pixelDataIn));
 
   char *in = kmalloc(tempIn->length + 1, GFP_KERNEL);
   copy_from_user(in, tempIn->stringIn, tempIn->length);
   in[tempIn->length] = '\0';
-  // = (struct pixelDataIn *)arg;
-  // struct pixelDataIn *tempIn = (struct pixelDataIn *)arg;
-  // struct pixelDataIn *t1 = arg;
-  // get_user(tempIn, t1);
 
-  char* charIn = tempIn->stringIn;
-  // get_user(tempX, tempIn->x);
-  // get_user(tempY, tempIn->y);
-  // get_user(tempX1, tempIn->x1);
-  // get_user(tempY1, tempIn->y1);
   tempX = tempIn->x;
   tempY = tempIn->y;
   tempX1 = tempIn->x1;
@@ -131,12 +121,10 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
     case EINKCHAR_IOCWRLUT:
       if(partialUpdate) {
         PDEBUG("Partial LUT selected\n");
-        // SetLut(lut_partial_update);
         Init(lut_partial_update);
       }
       else {
         PDEBUG("Full LUT selected\n");
-        // SetLut(lut_full_update);
         Init(lut_full_update);
       }
       break;
@@ -146,18 +134,15 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       break;
   }
 
-  // kfree(tempIn);
+  kfree(tempIn);
+  kfree(in);
   return 0;
 }
 
 struct file_operations aesd_fops = {
     .owner = THIS_MODULE,
-    // .read =     aesd_read,
     .write = eink_write,
-    // .open =     aesd_open,
-    // .llseek  = 	aesd_llseek,
     .unlocked_ioctl = eink_ioctl,
-    // .release =  aesd_release,
 };
 
 static int aesd_setup_cdev(struct aesd_dev *dev) {
@@ -184,13 +169,10 @@ int __init eink_init(void) {
   }
   memset(&aesd_device, 0, sizeof(struct aesd_dev));
 
-  /**
- * TODO: initialize the AESD specific portion of the device
- */
+
   mutex_init(&aesd_device.lock);
 
   // NO PULL UPS
-
   printk(KERN_INFO "GPIO INIT: Initializing the GPIO\n");
 
   if (!gpio_is_valid(einkReset)) {
@@ -233,12 +215,10 @@ int __init eink_init(void) {
       .bus_num = 0,
       .chip_select = 0,
       .mode = 0
-      // .bits_per_word = 8
   };
 
   /*To send data we have to know what spi port/pins should be used. This
-  information
-  can be found in the device-tree. */
+  information can be found in the device-tree. */
   master = spi_busnum_to_master(spi_device_info.bus_num);
   if (!master) {
     printk("MASTER not found.\n");
@@ -267,7 +247,6 @@ int __init eink_init(void) {
   }
   printk("jrfskm to setup slave.\n");
 
-  // spi_write(spi_device, &ch, sizeof(ch));
   Init(lut_full_update);
   ClearFrameMemory(0xFF); // bit set = white, bit reset = black
   DisplayFrame();
@@ -280,14 +259,6 @@ int __init eink_init(void) {
     }
   }
 
-  // drawLineX(100, 50, 10, DISP_BLACK);
-  // updateDisplay();
-
-  // drawLineY(10, 100, 100, DISP_BLACK);
-  // updateDisplay();
-
-  // writeString(20, 20, DISP_BLACK, "Prayag - module");
-  // updateDisplay();
 
   result = aesd_setup_cdev(&aesd_device);
   printk(KERN_ERR "-------------------------------------\n");
