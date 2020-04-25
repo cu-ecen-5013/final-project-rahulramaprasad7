@@ -76,6 +76,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
   int i = 0, temp = 0;
   int tempX, tempX1, tempY, tempY1;
+  bool partialUpdate;
   PDEBUG("EINK: IOCTL command: %d\n", cmd);
   /*
 	 * extract the type and number bitfields, and don't decode
@@ -107,6 +108,9 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   tempY = tempIn->y;
   tempX1 = tempIn->x1;
   tempY1 = tempIn->y1;
+
+  partialUpdate = tempIn->partLUT;
+
   PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
   drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
 
@@ -122,6 +126,19 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
       drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
       updateDisplay();
+      break;
+
+    case EINKCHAR_IOCWRLUT:
+      if(partialUpdate) {
+        PDEBUG("Partial LUT selected\n");
+        // SetLut(lut_partial_update);
+        Init(lut_partial_update);
+      }
+      else {
+        PDEBUG("Full LUT selected\n");
+        // SetLut(lut_full_update);
+        Init(lut_full_update);
+      }
       break;
 
     default:
@@ -263,14 +280,14 @@ int __init eink_init(void) {
     }
   }
 
-  drawLineX(100, 50, 10, DISP_BLACK);
-  updateDisplay();
+  // drawLineX(100, 50, 10, DISP_BLACK);
+  // updateDisplay();
 
-  drawLineY(10, 100, 100, DISP_BLACK);
-  updateDisplay();
+  // drawLineY(10, 100, 100, DISP_BLACK);
+  // updateDisplay();
 
-  writeString(20, 20, DISP_BLACK, "Prayag - module");
-  updateDisplay();
+  // writeString(20, 20, DISP_BLACK, "Prayag - module");
+  // updateDisplay();
 
   result = aesd_setup_cdev(&aesd_device);
   printk(KERN_ERR "-------------------------------------\n");

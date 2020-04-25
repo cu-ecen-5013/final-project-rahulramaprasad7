@@ -11,6 +11,7 @@
 #else
 #include <sys/ioctl.h>
 #include <stdint.h>
+#include <stdbool.h>
 #endif
 
 struct pixelDataIn {
@@ -22,6 +23,8 @@ struct pixelDataIn {
     int y1;
     int lineLength;
     unsigned long length;
+
+    bool partLUT;
 };
 
 // Pick an arbitrary unused value from https://github.com/torvalds/linux/blob/master/Documentation/ioctl/ioctl-number.rst
@@ -30,6 +33,7 @@ struct pixelDataIn {
 // Define a write command from the user point of view, use command number 1
 #define EINKCHAR_IOCWRCHAR _IOR(EINK_IOC_MAGIC, 1, struct pixelDataIn)
 #define EINKCHAR_IOCWRXYLINE _IOR(EINK_IOC_MAGIC, 2, struct pixelDataIn)
+#define EINKCHAR_IOCWRLUT _IOR(EINK_IOC_MAGIC, 2, bool)
 /**
  * The maximum number of commands supported, used for bounds checking
  */
