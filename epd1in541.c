@@ -125,7 +125,7 @@ void SetLut(const unsigned char* lut) {
     /* the length of look-up table is 30 bytes */
     for (int i = 0; i < 30; i++) {
         // SendData(lut[i]);
-        SendData(lut_partial_update[i]);
+        SendData(lut[i]);
     }
 }
 
