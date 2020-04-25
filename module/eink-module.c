@@ -90,9 +90,9 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   struct pixelDataIn *tempIn = kmalloc(sizeof(struct pixelDataIn), GFP_KERNEL);
   copy_from_user((void*)tempIn, (struct pixelDataIn __user *)arg, sizeof(struct pixelDataIn));
 
-  char *in = kmalloc(tempIn->length + 1, GFP_KERNEL);
-  copy_from_user(in, tempIn->stringIn, tempIn->length);
-  in[tempIn->length] = '\0';
+  char *in = kmalloc(tempIn->stringLength + 1, GFP_KERNEL);
+  copy_from_user(in, tempIn->stringIn, tempIn->stringLength);
+  in[tempIn->stringLength] = '\0';
 
   tempX = tempIn->x;
   tempY = tempIn->y;
@@ -101,13 +101,13 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
   partialUpdate = tempIn->partLUT;
 
-  PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
-  drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
+  // PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
+  // drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
 
   switch (cmd)
   {
     case EINKCHAR_IOCWRCHAR:
-      PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->length);
+      PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->stringLength);
       writeString(tempX, tempY, DISP_BLACK, in);
       updateDisplay();
       break;
@@ -127,6 +127,26 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
         PDEBUG("Full LUT selected\n");
         Init(lut_full_update);
       }
+      break;
+    
+    case EINKCHAR_IOCWRSECTION:
+      PDEBUG("Section write from IOCTL: *START* X1: %d Y1: %d  *SIZE* X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
+      size_t sectionSize = tempX1 * tempY1;
+      uint8_t *sectionPointer = kmalloc(sectionSize, GFP_KERNEL);
+      copy_from_user(sectionPointer, tempIn->sectionData, sectionSize);
+
+      int i, j;
+      for(i = 0; i < 20; i ++)
+      {
+        for(j = 0; j < 20; j++)
+        {
+            int index = j + 20 * i;
+            drawPixel(tempX + j, tempY + i, sectionPointer[index]);
+        }
+      }
+      updateDisplay(); 
+
+      kfree(sectionPointer);
       break;
 
     default:
