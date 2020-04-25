@@ -76,7 +76,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
   int i = 0, temp = 0;
   int tempX, tempX1, tempY, tempY1;
-  PDEBUG("EINK: IOCTL\n");
+  PDEBUG("EINK: IOCTL command: %d\n", cmd);
   /*
 	 * extract the type and number bitfields, and don't decode
 	 * wrong cmds: return ENOTTY (inappropriate ioctl) before access_ok()
@@ -107,20 +107,20 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   tempY = tempIn->y;
   tempX1 = tempIn->x1;
   tempY1 = tempIn->y1;
-
+  PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
+  drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
 
   switch (cmd)
   {
     case EINKCHAR_IOCWRCHAR:
-      // for(i = 0, temp = 0; i < BUF_LEN; i++, temp++)
-      // {
-      //   get_user(bufIn[i], tempIn->stringIn + i);
-      //   // bufIn[i] = tempIn->stringIn + i;
-      //   if(bufIn[i] == '\0')
-      //     break;
-      // }
       PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->length);
       writeString(tempX, tempY, DISP_BLACK, in);
+      updateDisplay();
+      break;
+
+    case EINKCHAR_IOCWRXYLINE:
+      PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
+      drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
       updateDisplay();
       break;
 

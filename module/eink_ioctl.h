@@ -29,9 +29,10 @@ struct pixelDataIn {
 
 // Define a write command from the user point of view, use command number 1
 #define EINKCHAR_IOCWRCHAR _IOR(EINK_IOC_MAGIC, 1, struct pixelDataIn)
+#define EINKCHAR_IOCWRXYLINE _IOR(EINK_IOC_MAGIC, 2, struct pixelDataIn)
 /**
  * The maximum number of commands supported, used for bounds checking
  */
-#define EINKCHAR_IOC_MAXNR 1
+#define EINKCHAR_IOC_MAXNR 2
 
 #endif /* EINK_IOCTL_H */
