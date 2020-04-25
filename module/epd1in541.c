@@ -77,6 +77,7 @@ int Init(const unsigned char* lut) {
     SendCommand(DATA_ENTRY_MODE_SETTING);
     SendData(0x03);                     // X increment; Y increment
     SetLut(lut);
+    PDEBUG("LUT[0]: 0x%X\n", lut[0]);
     /* EPD hardware init end */
     return 0;
 }
@@ -142,7 +143,7 @@ void SetLut(const unsigned char* lut) {
     int i;
     for (i = 0; i < 30; i++) {
         // SendData(lut[i]);
-        SendData(lut_full_update[i]);
+        SendData(lut[i]);
     }
 }
 
