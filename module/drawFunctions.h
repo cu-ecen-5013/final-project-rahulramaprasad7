@@ -53,6 +53,7 @@ extern void drawLineX(uint16_t startPosX, uint16_t length, uint16_t startPosY, b
 extern void drawLineY(uint16_t startPosX, uint16_t length, uint16_t startPosY, bool color);
 extern void writeLetter(uint16_t posX, uint16_t posY, bool color, char inChar);
 extern void writeString(uint16_t posX, uint16_t posY, bool color, char *inString);
+extern void drawLine(int x0, int y0, int x1, int y1, bool color);
 extern void updateDisplay(void);
 
 #endif

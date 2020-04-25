@@ -130,6 +130,28 @@ void writeString(uint16_t posX, uint16_t posY, bool color, char *inString)
     }
 }
 
+void drawLine(int x0, int y0, int x1, int y1, bool color) 
+{
+    /* Bresenham algorithm */
+    int dx = x1 - x0 >= 0 ? x1 - x0 : x0 - x1;
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = y1 - y0 <= 0 ? y1 - y0 : y0 - y1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx + dy;
+
+    while((x0 != x1) && (y0 != y1)) {
+        drawPixel(x0, y0 , color);
+        if (2 * err >= dy) {     
+            err += dy;
+            x0 += sx;
+        }
+        if (2 * err <= dx) {
+            err += dx; 
+            y0 += sy;
+        }
+    }
+}
+
 void updateDisplay(void)
 {
     SetMemoryArea(0, 0, 200 - 1, 200 - 1);
