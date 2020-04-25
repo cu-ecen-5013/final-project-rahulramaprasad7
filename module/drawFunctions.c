@@ -132,6 +132,21 @@ void writeString(uint16_t posX, uint16_t posY, bool color, char *inString)
 
 void drawLine(int x0, int y0, int x1, int y1, bool color) 
 {
+    if(x0 == x1)
+    {
+        int len = abs(y0 - y1);
+        drawLineY(x0, len, (y0 > y1) ? y1 : y0, color);
+        return;
+    }
+
+    if(y0 == y1)
+    {
+        int len = abs(x0 - x1);
+        drawLineX((x0 > x1) ? x1 : x0, len, y0, color);
+        return;
+    }
+
+
     /* Bresenham algorithm */
     int dx = x1 - x0 >= 0 ? x1 - x0 : x0 - x1;
     int sx = x0 < x1 ? 1 : -1;
@@ -139,8 +154,10 @@ void drawLine(int x0, int y0, int x1, int y1, bool color)
     int sy = y0 < y1 ? 1 : -1;
     int err = dx + dy;
 
+    PDEBUG("\n\n\n\n");
     while((x0 != x1) && (y0 != y1)) {
         drawPixel(x0, y0 , color);
+        PDEBUG("LINE X: %d Y: %d\n", x0, y0);
         if (2 * err >= dy) {     
             err += dy;
             x0 += sx;
@@ -151,6 +168,47 @@ void drawLine(int x0, int y0, int x1, int y1, bool color)
         }
     }
 }
+
+// void drawLine(int x1, int y1, int x2, int y2, bool color) 
+// {
+//     int gd,gm,x,y,end,p,dx,dy;
+	
+// 	dx=abs(x1-x2);
+// 	dy=abs(y1-y2);
+// 	p = 2*dy-dx;
+	
+// 	if(x1>x2)
+// 	{
+// 		x=x2;
+// 		y=y2;
+// 		end=x1;
+// 	}
+// 	else
+// 	{
+// 		x=x1;
+// 		y=y1;
+// 		end=x2;
+// 	}
+// 	drawPixel(x, y, color);
+	
+// 	while(x<=end)
+// 	{
+// 		if(p<0)
+// 		{
+// 			x++;
+// 			p=p+2*dy;
+// 		}
+// 		else
+// 		{
+// 			x++;
+// 			y++;
+// 			p=p+2*(dy-dx);
+// 		}
+// 		drawPixel(x, y, color);
+//         PDEBUG("LINE X: %d Y: %d\n", x, y);
+// 	}
+// }
+
 
 void updateDisplay(void)
 {

@@ -77,7 +77,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   int i = 0, temp = 0;
   int tempX, tempX1, tempY, tempY1;
   bool partialUpdate;
-  PDEBUG("EINK: IOCTL command: %d\n", cmd);
+  PDEBUG("EINK: IOCTL\n");
   /*
 	 * extract the type and number bitfields, and don't decode
 	 * wrong cmds: return ENOTTY (inappropriate ioctl) before access_ok()
@@ -145,7 +145,6 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
         }
       }
       updateDisplay(); 
-
       kfree(sectionPointer);
       break;
 
