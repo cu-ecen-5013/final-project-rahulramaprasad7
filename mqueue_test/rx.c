@@ -64,9 +64,17 @@ void delay(int number_of_seconds)
         ; 
 } 
 
+void writePartial(void)
+{
+    struct pixelDataIn data;
+    data.partLUT = true;
+    ioctl(fd, EINKCHAR_IOCWRLUT, &data);
+}
+
 void drawPR(int pitch, int roll)
 {
     struct pixelDataIn data;
+    data.disableUpdate = true;
 
     data.x = 0;
     data.y = 0;
@@ -85,7 +93,7 @@ void drawPR(int pitch, int roll)
     }
 
     data.sectionData = sec;
-    ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
+    // ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
 
     pitch *= -1;
     pitch += 180;
@@ -98,14 +106,18 @@ void drawPR(int pitch, int roll)
     _roll /= 3.6;
 
     // printf("Non-scaled adjusted Pitch: %d Roll %d ", pitch, roll);
-    pitch = round(_pitch);
-    roll = round(_roll);
+    pitch = round(_pitch) / 2;
+    roll = round(_roll) / 2;
     printf("scaled adjusted Pitch: %d Roll %d \n", pitch, roll);
 
-    ioctl(fd, EINKCHAR_IOCWRLUT, &data);
+    // ioctl(fd, EINKCHAR_IOCWRLUT, &data);
 
-    data.x = roll - 5 + 50;
-    data.y = pitch - 5 + 50;
+    data.x = (roll) - 5 + 25;
+    data.y = (pitch) - 5 + 25;
+
+    // data.x /= 2;
+    // data.y /= 2;
+
     data.x1 = 10;
     data.y1 = 10;
 
@@ -129,34 +141,7 @@ void drawPR(int pitch, int roll)
 
     data.sectionData = sec;
     ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
-
-    // data.x = pitch;
-    // data.y = roll;
-
-    // data.x1 = 25;
-    // data.y1 = 25;
-    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
-
-    // data.x = pitch + 1;
-    // data.y = roll;
-
-    // data.x1 = 25;
-    // data.y1 = 25;
-    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
-
-    // data.x = pitch;
-    // data.y = roll + 1;
-
-    // data.x1 = 25;
-    // data.y1 = 25;
-    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
-
-    // data.x = pitch + 1;
-    // data.y = roll + 1;
-
-    // data.x1 = 25;
-    // data.y1 = 25;
-    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
+    ioctl(fd, EINKCHAR_IOCWRDISUPD, NULL);
 
     free(sec);
     free(sec1);
@@ -165,6 +150,7 @@ void drawPR(int pitch, int roll)
 void drawYaw(int yaw)
 {
     struct pixelDataIn data;
+    data.disableUpdate = true;
 
     data.x = 0;
     data.y = 0;
@@ -173,11 +159,6 @@ void drawYaw(int yaw)
     data.partLUT = true;
 
     uint8_t *sec = malloc(200 * 200);
-
-    char test[] = "Write w/ IOCTL\0";
-    data.stringIn = test;
-    data.stringLength = strlen(test);
-
 
     for(int i = 0; i < 200; i ++)
     {
@@ -201,26 +182,57 @@ void drawYaw(int yaw)
     data.lineLength = 50;
     int x = round(50 * cos(DtoR(yaw)));
     int y = round(50 * sin(DtoR(yaw)));
-    data.x = 100;
-    data.y = 100;
+    data.x = 50;
+    data.y = 150;
 
     if(flipLine)
-        data.x1 = x + 100;
+        data.x1 = x + 50;
     else
-        data.x1 = x + 100 - x - x;
+        data.x1 = x + 50 - x - x;
 
     if(flipLine)
-        data.y1 = y + 100 - y - y;
+        data.y1 = y + 150 - y - y;
     else
-        data.y1 = y + 100;
+        data.y1 = y + 150;
 
     printf("Line: (%d, %d) Relative: (%d, %d)\n", x, y, data.x1, data.y1);
 
-    ioctl(fd, EINKCHAR_IOCWRLUT, &data);
+    // ioctl(fd, EINKCHAR_IOCWRLUT, &data);
     ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
+    // ioctl(fd, EINKCHAR_IOCWRDISUPD, NULL);
 
     free(sec);
 
+}
+
+void drawOverlay(int yaw, int pitch, int roll)
+{
+    struct pixelDataIn data;
+    data.disableUpdate = true;
+
+    data.x = 120;
+    char overlay[100];
+
+    data.y = 25;
+    sprintf(overlay, "Pitch: %4d", pitch);
+    data.stringLength = strlen(overlay);
+    printf("Overlay Pitch: %s\n", overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.y = 38;
+    sprintf(overlay, "Roll: %4d", roll);
+    data.stringLength = strlen(overlay);
+    printf("Overlay Roll: %s\n", overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.y = 150;
+    sprintf(overlay, "Yaw: %4d", yaw);
+    data.stringLength = strlen(overlay);
+    printf("Overlay Yaw: %s\n", overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
 }
 
 int main(void)
@@ -245,6 +257,7 @@ int main(void)
     int i = 0;
 
     fd = open("/dev/einkChar", O_WRONLY);
+    writePartial();
 
     while (1) {
         ++i;
@@ -266,7 +279,8 @@ int main(void)
         }
 
         printf("Yaw: %d Pitch %d Roll %d\n", yaw, pitch, roll);
-        // drawYaw(yaw);
+        drawYaw(yaw);
+        drawOverlay(yaw, pitch, roll);
         drawPR(pitch, roll);
 
         // delay(1000);
