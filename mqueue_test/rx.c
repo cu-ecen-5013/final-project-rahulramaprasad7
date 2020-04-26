@@ -30,6 +30,20 @@
 sem_t *mutex_sem;
 int fd;
 
+uint8_t cursorBitmap[10][10] = 
+{
+    {0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 0, 0, 0, 1, 1, 0, 0, 0, 0}
+};
+
 //pos-pos-X-Y-section
 void writeSection(int posX, int posY, int width, int height, bool color, uint8_t *section)
 {
@@ -49,6 +63,104 @@ void delay(int number_of_seconds)
     while (clock() < start_time + milli_seconds) 
         ; 
 } 
+
+void drawPR(int pitch, int roll)
+{
+    struct pixelDataIn data;
+
+    data.x = 0;
+    data.y = 0;
+    data.x1 = 200;
+    data.y1 = 200;
+    data.partLUT = true;
+
+    uint8_t *sec = malloc(200 * 200);
+
+    for(int i = 0; i < 200; i ++)
+    {
+        for(int j = 0; j < 200; j++)
+        {
+            writeSection(i, j, 200, 200, DISP_WHITE, sec);
+        }
+    }
+
+    data.sectionData = sec;
+    ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
+
+    pitch *= -1;
+    pitch += 180;
+    roll += 180;
+
+    double _pitch = (double)pitch;
+    double _roll = (double)roll;
+
+    _pitch /= 3.6;
+    _roll /= 3.6;
+
+    // printf("Non-scaled adjusted Pitch: %d Roll %d ", pitch, roll);
+    pitch = round(_pitch);
+    roll = round(_roll);
+    printf("scaled adjusted Pitch: %d Roll %d \n", pitch, roll);
+
+    ioctl(fd, EINKCHAR_IOCWRLUT, &data);
+
+    data.x = roll - 5 + 50;
+    data.y = pitch - 5 + 50;
+    data.x1 = 10;
+    data.y1 = 10;
+
+    uint8_t *sec1 = malloc(10 * 10);
+
+    for(int i = 0; i < 10; i ++)
+    {
+        for(int j = 0; j < 10; j++)
+        {
+            writeSection(i, j, 10, 10, DISP_WHITE, sec);
+        }
+    }
+
+    for(int i = 0; i < 10; i ++)
+    {
+        for(int j = 0; j < 10; j++)
+        {
+            writeSection(i, j, 10, 10, cursorBitmap[j][i], sec);
+        }
+    }
+
+    data.sectionData = sec;
+    ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
+
+    // data.x = pitch;
+    // data.y = roll;
+
+    // data.x1 = 25;
+    // data.y1 = 25;
+    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
+
+    // data.x = pitch + 1;
+    // data.y = roll;
+
+    // data.x1 = 25;
+    // data.y1 = 25;
+    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
+
+    // data.x = pitch;
+    // data.y = roll + 1;
+
+    // data.x1 = 25;
+    // data.y1 = 25;
+    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
+
+    // data.x = pitch + 1;
+    // data.y = roll + 1;
+
+    // data.x1 = 25;
+    // data.y1 = 25;
+    // ioctl(fd, EINKCHAR_IOCWRPIXEL, &data);
+
+    free(sec);
+    free(sec1);
+}
 
 void drawYaw(int yaw)
 {
@@ -104,11 +216,6 @@ void drawYaw(int yaw)
 
     printf("Line: (%d, %d) Relative: (%d, %d)\n", x, y, data.x1, data.y1);
 
-    if(flipLine)
-    {
-    //    data.y1 -= ;
-    }
-
     ioctl(fd, EINKCHAR_IOCWRLUT, &data);
     ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 
@@ -159,9 +266,10 @@ int main(void)
         }
 
         printf("Yaw: %d Pitch %d Roll %d\n", yaw, pitch, roll);
-        drawYaw(yaw);
+        // drawYaw(yaw);
+        drawPR(pitch, roll);
 
-        delay(1000);
+        // delay(1000);
 
         if(i > 5)
             break;
