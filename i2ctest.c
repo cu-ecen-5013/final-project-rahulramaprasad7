@@ -71,7 +71,7 @@ int main()
 		/* Reading Magnetometer values */
 		uint32_t magStatus1 = 0;
 		uint32_t deviceID = i2c_smbus_read_byte_data( file_i2c_mag,0x00);
-		printf("Device ID is %x\n",deviceID);
+		// printf("Device ID is %x\n",deviceID);
 		do
   		{
      			magStatus1 = i2c_smbus_read_byte_data( file_i2c_mag,0x02);
@@ -84,7 +84,7 @@ int main()
 		buffer[16] = i2c_smbus_read_byte_data(file_i2c_mag, 0x08); // MagnetometerZ High Byte
 		buffer[17] = i2c_smbus_read_byte_data(file_i2c_mag, 0x07); // MagnetometerZ Low Byte
 		
-		printf("Magnetometer values are %d, %d, %d, %d, %d, %d\n", buffer[12], buffer[13], buffer[14], buffer[15], buffer[16], buffer[17]);
+		// printf("Magnetometer values are %d, %d, %d, %d, %d, %d\n", buffer[12], buffer[13], buffer[14], buffer[15], buffer[16], buffer[17]);
 		/* Converting the accelerometer values into 16 bits */
 		ax = buffer[0] << 8 | buffer[1];
 		ay = buffer[2] << 8 | buffer[3];
@@ -100,10 +100,10 @@ int main()
 		my = buffer[14] << 8 | buffer[15];
 		mz = buffer[16] << 8 | buffer[17];
 		
-		printf("The magnetometer values are %d, %d, %d\n", mx, my,mz);
+		//printf("The magnetometer values are %d, %d, %d\n", mx, my,mz);
 		MadgwickAHRSupdate((float)ax, (float)ay, (float)az, (float)gx, (float)gy, (float)gz, (float)mx, (float)my, (float)mz);	
-		int k = 0;
-		for(k = 0; k < 90000000; k++);
+		// int k = 0;
+		// for(k = 0; k < 90000000; k++);
 	}
 }
 

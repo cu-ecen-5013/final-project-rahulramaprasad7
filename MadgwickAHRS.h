@@ -10,9 +10,11 @@
 // 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
 //
 //=====================================================================================================
-#ifndef MadgwickAHRS_h
-#define MadgwickAHRS_h
-#include <stdio.h>
+#ifndef MADGWICKAHRS_h
+#define MADGWICKAHRS_h
+#include <math.h>
+#include <pthread.h>
+#include <stdlib.h>
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 
@@ -23,8 +25,8 @@ extern volatile float q0, q1, q2, q3;	// quaternion of sensor frame relative to 
 // Function declarations
 
 void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
-void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
-float invSqrt(float x);
+void *gyroQuaternion(void *g);
+void *acceleroQuaternion(void *am);
 
 #endif
 //=====================================================================================================
