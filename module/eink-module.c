@@ -90,9 +90,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   struct pixelDataIn *tempIn = kmalloc(sizeof(struct pixelDataIn), GFP_KERNEL);
   copy_from_user((void*)tempIn, (struct pixelDataIn __user *)arg, sizeof(struct pixelDataIn));
 
-  char *in = kmalloc(tempIn->stringLength + 1, GFP_KERNEL);
-  copy_from_user(in, tempIn->stringIn, tempIn->stringLength);
-  in[tempIn->stringLength] = '\0';
+
 
   tempX = tempIn->x;
   tempY = tempIn->y;
@@ -107,8 +105,13 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   switch (cmd)
   {
     case EINKCHAR_IOCWRCHAR:
+      PDEBUG("String from IOCTL\n");
+      char *in = kmalloc(tempIn->stringLength + 1, GFP_KERNEL);
+      copy_from_user(in, tempIn->stringIn, tempIn->stringLength);
+      in[tempIn->stringLength] = '\0';
       PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->stringLength);
       writeString(tempX, tempY, DISP_BLACK, in);
+      kfree(in);
       updateDisplay();
       break;
 
@@ -136,11 +139,11 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       copy_from_user(sectionPointer, tempIn->sectionData, sectionSize);
 
       int i, j;
-      for(i = 0; i < 20; i ++)
+      for(i = 0; i < tempY1; i ++)
       {
-        for(j = 0; j < 20; j++)
+        for(j = 0; j < tempX1; j++)
         {
-            int index = j + 20 * i;
+            int index = j + tempX1 * i;
             drawPixel(tempX + j, tempY + i, sectionPointer[index]);
         }
       }
@@ -154,7 +157,6 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   }
 
   kfree(tempIn);
-  kfree(in);
   return 0;
 }
 
