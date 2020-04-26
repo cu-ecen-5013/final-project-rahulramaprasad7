@@ -14,10 +14,8 @@ module/.tmp_versions/gpioTest.mod
 module/modules.order
 module/*.o
 module/gpioTest.ko
-module/modules.order
-module/modules.order
 module/gpioTest.mod.c
-module/modules.order
+module/*.order
 module/aesdchar.ko
 epaper
 module/.eink-module.o.d
@@ -27,3 +25,5 @@ module/.einkChar.mod.o.cmd
 module/einkChar.mod.c
 module/einkChar.ko
 module/.tmp_versions/einkChar.mod
+mqueue_test/rx
+mqueue_test/tx
