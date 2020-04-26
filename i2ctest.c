@@ -101,7 +101,8 @@ int main()
 		mz = buffer[16] << 8 | buffer[17];
 		
 		//printf("The magnetometer values are %d, %d, %d\n", mx, my,mz);
-		MadgwickAHRSupdate((float)ax, (float)ay, (float)az, (float)gx, (float)gy, (float)gz, (float)mx, (float)my, (float)mz);	
+		float roll, pitch, yaw;
+		MadgwickAHRSupdate((float)ax, (float)ay, (float)az, (float)gx, (float)gy, (float)gz, (float)mx, (float)my, (float)mz, roll, pitch, yaw);	
 		// int k = 0;
 		// for(k = 0; k < 90000000; k++);
 	}

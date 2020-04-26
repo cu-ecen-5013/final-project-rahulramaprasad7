@@ -63,7 +63,7 @@ float invSqrt(float x);
 //---------------------------------------------------------------------------------------------------
 // AHRS algorithm update
 
-void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) 
+void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float roll, float pitch, float yaw) 
 {
 	q0 = 1.0f;
 	q1 = 0.0f;
@@ -117,9 +117,9 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 	q1 *= recipNorm;
 	q2 *= recipNorm;
 	q3 *= recipNorm;
-	float roll = (180 / M_PI) * atan2f(q0*q1 + q2*q3, 0.5f - q1*q1 - q2*q2);
-	float pitch = (180 / M_PI) * asinf(-2.0f * (q1*q3 - q0*q2));
-	float yaw = (180 / M_PI) * atan2f(q1*q2 + q0*q3, 0.5f - q2*q2 - q3*q3);
+	roll = (180 / M_PI) * atan2f(q0*q1 + q2*q3, 0.5f - q1*q1 - q2*q2);
+	pitch = (180 / M_PI) * asinf(-2.0f * (q1*q3 - q0*q2));
+	yaw = (180 / M_PI) * atan2f(q1*q2 + q0*q3, 0.5f - q2*q2 - q3*q3);
 	printf("Roll = %f, Pitch = %f, Yaw = %f\n", roll, pitch, yaw);
 	// printf("The quaternion output is as follows %f, %f, %f, %f\n",q0,q1,q2,q3);
 }
