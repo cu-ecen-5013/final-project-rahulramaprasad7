@@ -233,6 +233,36 @@ void drawOverlay(int yaw, int pitch, int roll)
     printf("Overlay Yaw: %s\n", overlay);
     data.stringIn = overlay;
     ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.y = 80;
+    sprintf(overlay, "Prayag", yaw);
+    data.stringLength = strlen(overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.y = 93;
+    sprintf(overlay, "Rahul", yaw);
+    data.stringLength = strlen(overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.y = 106;
+    sprintf(overlay, "Sharan", yaw);
+    data.stringLength = strlen(overlay);
+    data.stringIn = overlay;
+    ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
+
+    data.x = 0;
+    data.y = 100;
+    data.x1 = 110;
+    data.y1 = 100;
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
+
+    data.x = 110;
+    data.y = 0;
+    data.x1 = 110;
+    data.y1 = 200;
+    ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 }
 
 int main(void)
@@ -285,7 +315,7 @@ int main(void)
 
         // delay(1000);
 
-        if(i > 5)
+        if(i > 18)
             break;
     }
     mq_unlink(QUEUE_NAME);
