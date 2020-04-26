@@ -22,7 +22,7 @@ struct pixelDataIn {
     int y;
 
     // Second set of X-Y co-ordinates
-    // Used for line and section update IOCTLs
+    // Used for pixel, line and section update IOCTLs
     // End co-ord for line
     // X-Y size of the section
     int x1;
@@ -44,11 +44,11 @@ struct pixelDataIn {
 #define EINK_IOC_MAGIC 0x16
 
 // Define a write command from the user point of view, use command number 1
-#define EINKCHAR_IOCWRCHAR _IOR(EINK_IOC_MAGIC, 1, struct pixelDataIn)
-#define EINKCHAR_IOCWRXYLINE _IOR(EINK_IOC_MAGIC, 2, struct pixelDataIn)
-#define EINKCHAR_IOCWRLUT _IOR(EINK_IOC_MAGIC, 3, bool)
-#define EINKCHAR_IOCWRSECTION _IOR(EINK_IOC_MAGIC, 4, uint8_t*)
-#define EINKCHAR_IOCWRCLR _IOR(EINK_IOC_MAGIC, 5, NULL)
+#define EINKCHAR_IOCWRCHAR _IOW(EINK_IOC_MAGIC, 1, struct pixelDataIn)
+#define EINKCHAR_IOCWRXYLINE _IOW(EINK_IOC_MAGIC, 2, struct pixelDataIn)
+#define EINKCHAR_IOCWRLUT _IOW(EINK_IOC_MAGIC, 3, bool)
+#define EINKCHAR_IOCWRSECTION _IOW(EINK_IOC_MAGIC, 4, uint8_t*)
+#define EINKCHAR_IOCWRPIXEL _IOW(EINK_IOC_MAGIC, 5, struct pixelDataIn)
 
 /**
  * The maximum number of commands supported, used for bounds checking

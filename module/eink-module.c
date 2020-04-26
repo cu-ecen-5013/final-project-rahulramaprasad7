@@ -151,6 +151,11 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       kfree(sectionPointer);
       break;
 
+    case EINKCHAR_IOCWRPIXEL:
+      drawPixel(tempX + tempX1, tempY + tempY1, DISP_BLACK);
+      updateDisplay(); 
+      break;
+
     default:
       PDEBUG("Invalid IOCTL command: %d\n", cmd);
       break;
