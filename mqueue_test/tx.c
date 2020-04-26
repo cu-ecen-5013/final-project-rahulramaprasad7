@@ -10,13 +10,18 @@
 #include <math.h>
 #include <mqueue.h>
 #include <time.h> 
+#include <semaphore.h>
 #include "../module/eink_ioctl.h"
 
 #define QUEUE_NAME   "/mqueue"
+#define SEM_MUTEX_NAME "/sem-mutex"
+
 #define QUEUE_PERMISSIONS 0660
 #define MAX_MESSAGES 10
 #define MAX_MSG_SIZE 256
 #define MSG_BUFFER_SIZE MAX_MSG_SIZE + 10
+
+sem_t *mutex_sem;
 
   
 void delay(int number_of_seconds) 
@@ -32,10 +37,20 @@ void delay(int number_of_seconds)
         ; 
 } 
 
+int printRandoms(int lower, int upper) 
+{ 
+    int num = (rand() % (upper - lower + 1)) + lower; 
+    return num;
+} 
+
 int main(void)
 {
     mqd_t qd_tx;
     struct mq_attr attr;
+
+    if ((mutex_sem = sem_open (SEM_MUTEX_NAME, O_CREAT, 0660, 0)) == SEM_FAILED) {
+        perror ("sem_open"); exit (1);
+    }
 
     attr.mq_flags = 0;
     attr.mq_maxmsg = MAX_MESSAGES;
@@ -53,18 +68,26 @@ int main(void)
     while (1) {
         ++i;
 
+        snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", printRandoms(-180, 180), printRandoms(-180, 180), printRandoms(-180, 180));
+
+        if (sem_wait (mutex_sem) == -1) {
+	        perror ("sem_take: muex_sem"); exit (1);
+        }
+
         if (mq_send (qd_tx, out_buffer, strlen (out_buffer) + 1, 0) == -1) {
             perror ("Server: Not able to send message to client");
             continue;
         }
 
-        printf ("Server: response %d sent to client.\n", i);
+        printf ("Server: response %d sent %s to client\n", i, out_buffer);
 
-        delay(1000);
+        
         if(i > 5)
             break;
     }
     mq_unlink(QUEUE_NAME);
+    sem_unlink (SEM_MUTEX_NAME);
+
 
 
     return 0;
