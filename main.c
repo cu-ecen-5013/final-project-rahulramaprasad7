@@ -57,25 +57,25 @@ int main(void)
 
     uint8_t *sec = malloc(20 * 20);
 
-    // for(int i = 0; i < 20; i ++)
-    // {
-    //     for(int j = 0; j < 20; j++)
-    //     {
-    //         writeSection(i, j, 20, 20, DISP_WHITE, sec);
-    //     }
-    // }
+    for(int i = 0; i < 20; i ++)
+    {
+        for(int j = 0; j < 20; j++)
+        {
+            writeSection(i, j, 20, 20, DISP_WHITE, sec);
+        }
+    }
 
-    // for(int i = 0; i < 20; i ++)
-    // {
-    //     writeSection(i, i, 20, 20, DISP_BLACK, sec);
-    // }
+    for(int i = 0; i < 20; i ++)
+    {
+        writeSection(i, i, 20, 20, DISP_BLACK, sec);
+    }
 
-    // data.x = 0;
-    // data.y = 0;
-    // data.x1 = 20;
-    // data.y1 = 20;
-    // data.sectionData = sec;
-    // ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
+    data.x = 0;
+    data.y = 0;
+    data.x1 = 20;
+    data.y1 = 20;
+    data.sectionData = sec;
+    ioctl(fd, EINKCHAR_IOCWRSECTION, &data);
 
     int x = round(40 * cos(DtoR(0)));
     int y = round(40 * sin(DtoR(0)));
@@ -95,10 +95,10 @@ int main(void)
 
     x = round(40 * cos(DtoR(90)));
     y = round(40 * sin(DtoR(90)));
-    data.x1 = 80;
-    data.y1 = 80;
-    data.x = x + 80;
-    data.y = y + 80;
+    data.x1 = 100;
+    data.y1 = 0;
+    data.x = 10 + 100;
+    data.y = 49 + 0;
     ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 
     free(sec);
