@@ -97,6 +97,8 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
   tempX1 = tempIn->x1;
   tempY1 = tempIn->y1;
 
+  bool disUpdate = tempIn->disableUpdate;
+
   partialUpdate = tempIn->partLUT;
 
   // PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
@@ -112,13 +114,15 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->stringLength);
       writeString(tempX, tempY, DISP_BLACK, in);
       kfree(in);
-      updateDisplay();
+      if(!disUpdate)
+        updateDisplay();
       break;
 
     case EINKCHAR_IOCWRXYLINE:
       PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
       drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
-      updateDisplay();
+      if(!disUpdate)
+        updateDisplay();
       break;
 
     case EINKCHAR_IOCWRLUT:
@@ -137,6 +141,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       size_t sectionSize = tempX1 * tempY1;
       uint8_t *sectionPointer = kmalloc(sectionSize, GFP_KERNEL);
       copy_from_user(sectionPointer, tempIn->sectionData, sectionSize);
+      
 
       int i, j;
       for(i = 0; i < tempY1; i ++)
@@ -147,12 +152,18 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             drawPixel(tempX + j, tempY + i, sectionPointer[index]);
         }
       }
-      updateDisplay(); 
+      if(!disUpdate)
+        updateDisplay(); 
       kfree(sectionPointer);
       break;
 
     case EINKCHAR_IOCWRPIXEL:
       drawPixel(tempX + tempX1, tempY + tempY1, DISP_BLACK);
+      if(!disUpdate)
+        updateDisplay(); 
+      break;
+
+    case EINKCHAR_IOCWRDISUPD:
       updateDisplay(); 
       break;
 

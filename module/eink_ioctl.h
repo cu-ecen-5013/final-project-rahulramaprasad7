@@ -17,7 +17,7 @@
 struct pixelDataIn {
     // First set of X-Y co-ordinates
     // Used for pixel, line, and section update IOCTLs
-    // Start co-ord for line and section update
+    // Start co-ord for line, text and section update
     int x;
     int y;
 
@@ -36,6 +36,8 @@ struct pixelDataIn {
     // Boolean which specifies if the display update is full or partial
     bool partLUT;
 
+    bool disableUpdate;
+
     // Should contain an X-Y array of pixel value
     uint8_t *sectionData;
 };
@@ -49,10 +51,12 @@ struct pixelDataIn {
 #define EINKCHAR_IOCWRLUT _IOW(EINK_IOC_MAGIC, 3, bool)
 #define EINKCHAR_IOCWRSECTION _IOW(EINK_IOC_MAGIC, 4, uint8_t*)
 #define EINKCHAR_IOCWRPIXEL _IOW(EINK_IOC_MAGIC, 5, struct pixelDataIn)
+#define EINKCHAR_IOCWRDISUPD _IOW(EINK_IOC_MAGIC, 6, struct pixelDataIn)
+#define EINKCHAR_IOCWRPCLEAR _IO(EINK_IOC_MAGIC, 7, NULL)
 
 /**
  * The maximum number of commands supported, used for bounds checking
  */
-#define EINKCHAR_IOC_MAXNR 5
+#define EINKCHAR_IOC_MAXNR 7
 
 #endif /* EINK_IOCTL_H */
