@@ -65,11 +65,16 @@ int main(void)
 
     char out_buffer[MSG_BUFFER_SIZE] = "HELLO\0";
     int i = 0;
+    int temp = -180;
+    int temp1 = 0;
     while (1) {
         ++i;
 
-        snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", printRandoms(0, 360), printRandoms(-180, 180), printRandoms(-180, 180));
-        // snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", 180, 0, -180);
+        // snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", printRandoms(0, 360), printRandoms(-180, 180), printRandoms(-180, 180));
+        snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", temp1, temp, temp);
+
+        temp += 20;
+        temp1 += 20;
 
         if (sem_wait (mutex_sem) == -1) {
 	        perror ("sem_take: muex_sem"); exit (1);
@@ -83,7 +88,7 @@ int main(void)
         printf ("Server: response %d sent %s to client\n", i, out_buffer);
 
         
-        if(i > 5)
+        if(i > 18)
             break;
     }
     mq_unlink(QUEUE_NAME);
