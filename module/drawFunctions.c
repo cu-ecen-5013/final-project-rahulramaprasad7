@@ -154,10 +154,10 @@ void drawLine(int x0, int y0, int x1, int y1, bool color)
     int sy = y0 < y1 ? 1 : -1;
     int err = dx + dy;
 
-    PDEBUG("\n\n\n\n");
+    // PDEBUG("\n\n\n\n");
     while((x0 != x1) && (y0 != y1)) {
         drawPixel(x0, y0 , color);
-        PDEBUG("LINE X: %d Y: %d\n", x0, y0);
+        // PDEBUG("LINE X: %d Y: %d\n", x0, y0);
         if (2 * err >= dy) {     
             err += dy;
             x0 += sx;
