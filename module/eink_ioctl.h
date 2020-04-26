@@ -48,10 +48,11 @@ struct pixelDataIn {
 #define EINKCHAR_IOCWRXYLINE _IOR(EINK_IOC_MAGIC, 2, struct pixelDataIn)
 #define EINKCHAR_IOCWRLUT _IOR(EINK_IOC_MAGIC, 3, bool)
 #define EINKCHAR_IOCWRSECTION _IOR(EINK_IOC_MAGIC, 4, uint8_t*)
+#define EINKCHAR_IOCWRCLR _IOR(EINK_IOC_MAGIC, 5, NULL)
 
 /**
  * The maximum number of commands supported, used for bounds checking
  */
-#define EINKCHAR_IOC_MAXNR 4
+#define EINKCHAR_IOC_MAXNR 5
 
 #endif /* EINK_IOCTL_H */
