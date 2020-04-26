@@ -68,7 +68,7 @@ int main(void)
     while (1) {
         ++i;
 
-        snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", printRandoms(-180, 180), printRandoms(-180, 180), printRandoms(-180, 180));
+        snprintf(out_buffer, 33, "Yaw: %4d Pitch: %4d Roll: %4d\0", 315, printRandoms(-180, 180), printRandoms(-180, 180));
 
         if (sem_wait (mutex_sem) == -1) {
 	        perror ("sem_take: muex_sem"); exit (1);

@@ -14,10 +14,10 @@ TX_EXE :=	\
 all: _rx _tx
 
 _rx: ${C_FILES_RX}
-	gcc $? -o ${RX_EXE} -lrt -lpthread
+	gcc $? -o ${RX_EXE} -g -lrt -lpthread -lm
 
 _tx: ${C_FILES_TX}
-	gcc $? -o ${TX_EXE} -lrt -lpthread
+	gcc $? -o ${TX_EXE} -lrt -lpthread -lm
 
 clean:
 	rm ${RX_EXE} ${TX_EXE}
