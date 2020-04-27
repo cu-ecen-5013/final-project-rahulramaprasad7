@@ -12,6 +12,8 @@
 #include <time.h> 
 #include <semaphore.h>
 #include <math.h>
+#include <signal.h>
+#include <syslog.h> 
 #include "../module/eink_ioctl.h"
 
 #define QUEUE_NAME   "/mqueue"
@@ -29,7 +31,18 @@
 
 sem_t *mutex_sem;
 int fd;
-
+void handle_sig(int sig)
+{
+    
+    if(sig == SIGINT)
+        syslog(LOG_DEBUG,"Caught SIGINT Signal exiting\n");
+    if(sig == SIGTERM)
+        syslog(LOG_DEBUG,"Caught SIGTERM Signal exiting\n");
+    mq_unlink(QUEUE_NAME);
+    sem_unlink (SEM_MUTEX_NAME);
+   _exit(0);
+    
+}
 uint8_t cursorBitmap[10][10] = 
 {
     {0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -205,6 +218,33 @@ void drawYaw(int yaw)
 
 }
 
+void create_daemon()
+ {
+
+    pid_t process_id;
+    process_id=fork();
+    if (process_id < 0){
+        syslog(LOG_DEBUG,"Fork failed\n");
+        exit(1);
+    }
+    if(process_id > 0)
+        exit(0);
+    umask(0);
+    if (setsid() < 0)
+    {
+        syslog(LOG_DEBUG,"Child process does not lead\n");
+        exit(1);
+    }
+    if(chdir("/") < 0)
+    {
+        syslog(LOG_DEBUG,"Directory change filed \n"); // chdir() failed.
+        exit(1);
+    }
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+}
+
 void drawOverlay(int yaw, int pitch, int roll)
 {
     struct pixelDataIn data;
@@ -221,14 +261,14 @@ void drawOverlay(int yaw, int pitch, int roll)
     ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
 
     data.y = 38;
-    sprintf(overlay, "Roll: %4d", roll);
+    sprintf(overlay, "Roll: %5d", roll);
     data.stringLength = strlen(overlay);
     printf("Overlay Roll: %s\n", overlay);
     data.stringIn = overlay;
     ioctl(fd, EINKCHAR_IOCWRCHAR, &data);
 
     data.y = 150;
-    sprintf(overlay, "Yaw: %4d", yaw);
+    sprintf(overlay, "Yaw: %6d", yaw);
     data.stringLength = strlen(overlay);
     printf("Overlay Yaw: %s\n", overlay);
     data.stringIn = overlay;
@@ -265,11 +305,17 @@ void drawOverlay(int yaw, int pitch, int roll)
     ioctl(fd, EINKCHAR_IOCWRXYLINE, &data);
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    signal(SIGTERM,handle_sig);
+    signal(SIGINT,handle_sig);
+    if(argc == 2){
+	printf("Start daemon");
+     create_daemon();
+    }
     mqd_t qd_rx;
     struct mq_attr attr;
-
+	
     if ((mutex_sem = sem_open (SEM_MUTEX_NAME, O_CREAT, 0660, 0)) == SEM_FAILED) {
         perror ("sem_open"); exit (1);
     }
@@ -315,8 +361,7 @@ int main(void)
 
         // delay(1000);
 
-        if(i > 18)
-            break;
+        
     }
     mq_unlink(QUEUE_NAME);
     sem_unlink (SEM_MUTEX_NAME);
