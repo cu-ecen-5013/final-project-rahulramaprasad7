@@ -11,13 +11,23 @@ TX_EXE :=	\
 		tx
 
 
+ifeq ($(CC),)
+	CC = $(CROSS_COMPILE)gcc
+endif
+ifeq ($(CFLAGS),)
+	CFLAGS = -g -Wall -Werror
+endif
+ifeq ($(LDFLAGS),)
+	LDFLAGS = -g -lrt -lpthread -lm
+endif
+
 all: _rx _tx
 
 _rx: ${C_FILES_RX}
-	gcc $? -o ${RX_EXE} -g -lrt -lpthread -lm
+	$(CC) $? -o ${RX_EXE} $(LDFLAGS)
 
 _tx: ${C_FILES_TX}
-	gcc $? -o ${TX_EXE} -lrt -lpthread -lm
+	$(CC) $? -o ${TX_EXE} $(LDFLAGS)
 
 clean:
 	rm ${RX_EXE} ${TX_EXE}
