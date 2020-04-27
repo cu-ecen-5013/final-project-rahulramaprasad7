@@ -112,27 +112,35 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       copy_from_user(in, tempIn->stringIn, tempIn->stringLength);
       in[tempIn->stringLength] = '\0';
       PDEBUG("String from IOCTL: %s @ X: %d Y: %d Length: %ld\n", in, tempX, tempY, tempIn->stringLength);
+      mutex_lock_interruptible(&aesd_device.lock);
       writeString(tempX, tempY, DISP_BLACK, in);
       kfree(in);
       if(!disUpdate)
         updateDisplay();
+      mutex_unlock(&aesd_device.lock);
       break;
 
     case EINKCHAR_IOCWRXYLINE:
       PDEBUG("Line from IOCTL: X1: %d Y1: %d X2: %d Y2: %d\n", tempX, tempY, tempX1, tempY1);
+      mutex_lock_interruptible(&aesd_device.lock);
       drawLine(tempX, tempY, tempX1, tempY1, DISP_BLACK);
       if(!disUpdate)
         updateDisplay();
+      mutex_unlock(&aesd_device.lock);
       break;
 
     case EINKCHAR_IOCWRLUT:
       if(partialUpdate) {
         PDEBUG("Partial LUT selected\n");
+        mutex_lock_interruptible(&aesd_device.lock);
         Init(lut_partial_update);
+        mutex_unlock(&aesd_device.lock);
       }
       else {
         PDEBUG("Full LUT selected\n");
+        mutex_lock_interruptible(&aesd_device.lock);
         Init(lut_full_update);
+        mutex_unlock(&aesd_device.lock);
       }
       break;
     
@@ -142,7 +150,7 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       uint8_t *sectionPointer = kmalloc(sectionSize, GFP_KERNEL);
       copy_from_user(sectionPointer, tempIn->sectionData, sectionSize);
       
-
+      mutex_lock_interruptible(&aesd_device.lock);
       int i, j;
       for(i = 0; i < tempY1; i ++)
       {
@@ -154,17 +162,22 @@ long eink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       }
       if(!disUpdate)
         updateDisplay(); 
+      mutex_unlock(&aesd_device.lock);
       kfree(sectionPointer);
       break;
 
     case EINKCHAR_IOCWRPIXEL:
+      mutex_lock_interruptible(&aesd_device.lock);
       drawPixel(tempX + tempX1, tempY + tempY1, DISP_BLACK);
       if(!disUpdate)
         updateDisplay(); 
+      mutex_unlock(&aesd_device.lock);
       break;
 
     case EINKCHAR_IOCWRDISUPD:
+      mutex_lock_interruptible(&aesd_device.lock);
       updateDisplay(); 
+      mutex_unlock(&aesd_device.lock);
       break;
 
     default:
