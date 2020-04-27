@@ -27,3 +27,4 @@ module/einkChar.ko
 module/.tmp_versions/einkChar.mod
 mqueue_test/rx
 mqueue_test/tx
+mqueue_test/server
