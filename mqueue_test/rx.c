@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <math.h>
 #include <mqueue.h>
-#include <time.h> 
 #include <semaphore.h>
 #include <math.h>
 #include <signal.h>
@@ -64,18 +63,18 @@ void writeSection(int posX, int posY, int width, int height, bool color, uint8_t
     section[index] = color;
 }
 
-void delay(int number_of_seconds) 
-{ 
-    // Converting time into milli_seconds 
-    int milli_seconds = 1000 * number_of_seconds; 
-  
-    // Storing start time 
-    clock_t start_time = clock(); 
-  
-    // looping till required time is not achieved 
-    while (clock() < start_time + milli_seconds) 
-        ; 
-} 
+// void delay(int number_of_seconds)
+// {
+    // Converting time into milli_seconds
+    // int milli_seconds = 1000 * number_of_seconds;
+  // 
+    // Storing start time
+    // clock_t start_time = clock();
+  // 
+    // looping till required time is not achieved
+    // while (clock() < start_time + milli_seconds)
+        // ;
+// }
 
 void writePartial(void)
 {
@@ -307,6 +306,7 @@ void drawOverlay(int yaw, int pitch, int roll)
 
 int main(int argc, char *argv[])
 {
+	printf("SIG REG\n");
     signal(SIGTERM,handle_sig);
     signal(SIGINT,handle_sig);
     if(argc == 2){
@@ -315,6 +315,8 @@ int main(int argc, char *argv[])
     }
     mqd_t qd_rx;
     struct mq_attr attr;
+
+    printf("Init mutex\n");
 	
     if ((mutex_sem = sem_open (SEM_MUTEX_NAME, O_CREAT, 0660, 0)) == SEM_FAILED) {
         perror ("sem_open"); exit (1);
@@ -325,6 +327,7 @@ int main(int argc, char *argv[])
     attr.mq_msgsize = MAX_MSG_SIZE;
     attr.mq_curmsgs = 0;
 
+	printf("Init message Q\n");
     if ((qd_rx = mq_open (QUEUE_NAME, O_RDONLY | O_CREAT, QUEUE_PERMISSIONS, &attr)) == -1) {
         perror ("Server: mq_open (server)");
         exit(-1);
@@ -332,15 +335,21 @@ int main(int argc, char *argv[])
     char in_buffer[MSG_BUFFER_SIZE];
     int i = 0;
 
+	printf("Open device driver\n");
     fd = open("/dev/einkChar", O_WRONLY);
+
+    printf("Write partial\n");
     writePartial();
 
     while (1) {
         ++i;
 
+		printf("Give semaphore\n");
         if (sem_post (mutex_sem) == -1) {
 	        perror ("sem_post: mutex_sem"); exit (1);
         }
+
+        printf("Rx message Q\n");
         // get the oldest message with highest priority
         if (mq_receive (qd_rx, in_buffer, MSG_BUFFER_SIZE, NULL) == -1) {
             perror ("Server: mq_receive");
