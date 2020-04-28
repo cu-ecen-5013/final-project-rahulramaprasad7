@@ -24,7 +24,7 @@
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
-
+pthread_mutex_t access = PTHREAD_MUTEX_INITIALIZER;
 volatile float beta = betaDef;								// 2 * proportional gain (Kp)
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
 float qDot1, qDot2, qDot3, qDot4;
@@ -141,10 +141,12 @@ void *gyroQuaternion(void *gyroDesc)
 	float gx = ((struct gyroValues *)gyroDesc)->Gx;
 	float gy = ((struct gyroValues *)gyroDesc)->Gy;
 	float gz = ((struct gyroValues *)gyroDesc)->Gz;
+	pthread_mutex_lock(&access);
 	qDot1 = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
 	qDot2 = 0.5f * (q0 * gx + q2 * gz - q3 * gy);
 	qDot3 = 0.5f * (q0 * gy - q1 * gz + q3 * gx);
 	qDot4 = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
+	pthread_mutex_unlock(&access);
 	return NULL;
 }
 void *acceleroQuaternion(void *acceleroMagnetoDesc)
@@ -212,10 +214,12 @@ void *acceleroQuaternion(void *acceleroMagnetoDesc)
 		s3 *= recipNorm;
 
 		// Apply feedback step
+		pthread_mutex_lock(&access);
 		qDot1 -= beta * s0;
 		qDot2 -= beta * s1;
 		qDot3 -= beta * s2;
 		qDot4 -= beta * s3;
+		pthread_mutex_unlock(&access);
 	}
 	return NULL;
 }
